@@ -476,6 +476,8 @@ pages폴더에\_document.js 파일 작성
 웹사이트를   이용한 아이폰 스플래쉬 페이지 작성
 {% endembed %}
 
+
+
 실행
 
 ```powershell
@@ -549,3 +551,54 @@ event - compiled client and server successfully in 74 ms (186 modules)
 
 ```
 
+최종 next.config.js
+
+```
+/** @type {import('next').NextConfig} */
+const withPlugins = require("next-compose-plugins");
+const withPWA = require("next-pwa");
+const webpack = require("webpack");
+const optimizedImages = require('next-optimized-images')
+
+const nextConfig = {
+  reactStrictMode: true,
+  eslint: {
+    // ESLint managed on the workspace level
+    ignoreDuringBuilds: true,
+  },
+  images: {
+    loader: 'akamai',
+    path: './',
+  },
+  assetPrefix: './', 
+  webpack(config) {
+    //console.log(config);
+
+    // 플러그인 관련 설정
+    const plugins = [
+      ...config.plugins,
+      new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /^\.\/ko$/),	
+    ];
+    return {
+      ...config,
+      mode: "production",
+      devtool: "hidden-source-map",
+      plugins: plugins,
+    };
+  },
+};
+
+module.exports = withPlugins(
+	[
+		[
+			withPWA,
+			{
+				pwa: {
+					dest: "public",
+				},
+			},
+		],
+	],
+	nextConfig
+);
+```
